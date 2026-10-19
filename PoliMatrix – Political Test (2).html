@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PoliMatrix – Political Test</title>
+<style>
+:root{--bg:#050308;--fg:#ece8f5;--mut:#9d93b5;--card:#0e0a17;--bd:#2b2046;--ac:#8b5cf6;--ac2:#d8b4fe;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 Georgia,'Times New Roman',serif}
+main{max-width:680px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:2rem;margin:.2em 0}h2{margin:1.2em 0 .4em}p{color:var(--mut)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;margin:16px 0}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--fg);border-radius:10px;padding:12px 14px;width:100%;margin:5px 0;text-align:left}
+button:hover{border-color:var(--ac);background:#17102a}button:disabled{opacity:.35;cursor:default}button.p{background:var(--ac);color:#fff;border-color:var(--ac);text-align:center;font-weight:bold}
+.q{font-size:1.3rem;min-height:4.2em}.bar{height:6px;background:var(--bd);border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac)}
+.ax{margin:14px 0}.ax b{display:flex;justify-content:space-between;font-size:.85rem;color:var(--mut);font-weight:normal}
+.tr{position:relative;height:12px;background:var(--bd);border-radius:6px;margin:5px 0}.tr i{position:absolute;top:0;height:100%;background:var(--ac2);border-radius:6px}.tr u{position:absolute;left:50%;top:-2px;width:2px;height:16px;background:var(--fg);opacity:.4}
+.tag{display:inline-block;border:1px solid var(--bd);border-radius:20px;padding:3px 10px;margin:3px;font-size:.85rem}
+.m{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--bd)}.top{font-size:1.8rem;color:var(--ac);margin:.1em 0}
+.row{display:flex;gap:8px}.row button{text-align:center}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.vc{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:18px 10px;text-align:center}.vc svg{width:52px;height:52px;color:var(--ac2)}.vc b{display:block;margin:8px 0 2px}small{color:var(--mut)}.tag{cursor:pointer}.tag.on{background:var(--ac);border-color:var(--ac);color:#fff}.nav{display:flex;flex-wrap:wrap;margin-bottom:8px}a{color:var(--ac2)}input{font:inherit;width:100%;padding:12px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--fg);margin:8px 0}details.id summary{display:flex;align-items:center;gap:12px;cursor:pointer;font-size:1.05rem}details.id[open] summary{margin-bottom:8px}.card svg{max-width:100%}.pct{margin-left:auto;color:var(--ac2);font-weight:bold}textarea{font:13px monospace;width:100%;height:5.5em;background:var(--bg);color:var(--fg);border:1px solid var(--bd);border-radius:10px;padding:10px}ul{color:var(--mut);padding-left:20px}</style></head><body><main id="app"></main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+const A=[["Economy","Planned","Free Market"],["Authority","Libertarian","Authoritarian"],["Culture","Progressive","Traditional"],["Nation","Globalist","Nationalist"],["War","Pacifist","Militarist"],["Nature","Industrialist","Ecologist"],["Change","Revolutionary","Reformist"],["Tech","Primitivist","Accelerationist"],["Faith","Secular","Religious"],["Justice","Rehabilitative","Punitive"],["Society","Individualist","Collectivist"]];
+const IV={"Leninism":"0 0 2 1 1 4 9 6 0 1 7","Stalinism":"0 0 2 1 1 4 9 6 0 1 7","Hoxhaism":"0 0 2 1 1 4 9 6 0 1 7","Guevarism":"0 0 1 0 1 5 9 6 0 1 7","Titoism":"1 1 2 1 1 5 7 6 0 1 7","Dengism":"0 0 2 1 1 4 9 6 0 1 7","Authoritarian Socialism":"1 2 2 2 2 5 6 6 1 2 7","Eurocommunism":"0 1 2 1 1 5 6 6 0 1 7","Marxism":"0 0 2 1 1 4 8 6 0 1 7","Chavismo":"1 2 3 4 3 5 6 4 2 3 7","Nasserism":"2 4 5 7 4 3 5 6 4 4 7","Marxism-Leninism":"0 0 2 1 1 4 9 6 0 1 7","Maoism":"0 0 2 1 1 4 9 6 0 1 7","Trotskyism":"0 0 2 0 1 4 9 6 0 1 7","Syndicalism":"0 0 2 0 1 5 8 5 0 1 7","Fabianism":"2 3 1 2 2 6 4 6 1 2 6","Social Democracy":"2 3 1 2 2 6 4 6 1 2 6","Democratic Socialism":"2 1 2 1 2 6 6 5 1 2 6"};
+const FU=[["The state should be abolished","How would the state go away?","Abolish it outright, immediately","Shrink it step by step through reform","Use a strong state first, then let it wither away"],
+["Major industries should","How should industry come under public ownership?","Seize it now","Nationalize or buy out sectors gradually by law","A powerful state takes control first, then hands it to the people"],
+["Workers should democratically","How do workers get control?","Take over workplaces now","Build co-ops and unions over time","The state imposes it first, then steps back"],
+["Billionaires should","How do you end extreme wealth?","Confiscate it outright","Tax it away over time","Empower the state to break up fortunes until it is done"],
+["Society needs a complete","How should the rebuild happen?","Start over right now","Rebuild one institution at a time","Hold power through a transition, then rebuild"],
+["Prisons should be abolished","How do you get rid of prisons?","Open the doors now","Phase them out as alternatives take hold","Keep a tight system until alternatives are ready"],
+["Drugs should be fully","How should drugs be legalized?","All at once, no strings","One drug at a time, following the evidence","Legalize under tight state licensing and control"],
+["Borders should be open","How should borders open?","Open them now","Open them gradually through treaties","Open them under strict state-run screening"],
+["Nuclear weapons should","How do nuclear weapons get abolished?","Disarm unilaterally, now","Negotiate mutual cuts over years","Enforce it through a strong international power"],
+["Religion should stay out","How is religion kept out of politics?","Ban its role in public life now","Separate church and state step by step","The state actively suppresses its influence"],
+["Climate change demands","How should we act on climate?","Shut down fossil fuels immediately","Phase in carbon pricing and clean energy","Mandate it by state order with strict enforcement"],
+["Radical change is","How should that change come?","Through immediate upheaval","Through repeated reforms that add up","Through a disciplined vanguard or leader"],
+["The current system is","What replaces the current system?","Tear it down now","Replace parts of it over time","Run a strong interim government first"],
+["Healthcare should be free","How do you get free healthcare?","Create it all at once","Expand coverage in stages","Build one centralized state-run system"],
+["Political violence","When is political violence acceptable?","Whenever it works","Only as a last resort when reform fails","Only when a disciplined group organizes it"]];
+const Q=`0+Free markets allocate resources better than governments do.
+2-Same-sex marriage is a basic right.
+4+A strong military is essential for keeping the peace.
+6+The current system is beyond repair.
+8+Religion should guide public morality.
+1+A strong leader is better than endless debate.
+3+My country’s culture should be protected from foreign influence.
+5+Climate change demands drastic action right now.
+7+Technology will solve most of humanity’s big problems.
+9+Criminals should be punished harshly.
+0-Major industries should be publicly owned.
+1-Mass surveillance is never justified.
+2+Traditional families are the foundation of society.
+3-Borders should be open to everyone.
+4-Military spending should be slashed.
+5-Environmental regulations hurt more than they help.
+6-Change should be slow and incremental.
+7-Modern technology is making people miserable.
+8-Religion should stay out of politics entirely.
+9-Prisons should focus on rehabilitation, not punishment.
+0+Taxes on the wealthy should be cut to encourage investment.
+1+Order matters more than individual freedom.
+2-Gender roles are mostly socially constructed.
+3+Nations should put their own citizens first.
+4+Some wars are necessary and just.
+5+Nature has value beyond its use to humans.
+6+Political violence can sometimes be justified.
+7+We should pursue human genetic enhancement.
+8+Faith is necessary for a meaningful life.
+9+The death penalty is justified for the worst crimes.
+0-Workers should democratically control their workplaces.
+1-Adults should be free to do anything that harms no one else.
+2+Society was better in the past.
+3-Patriotism is overrated.
+4-Nuclear weapons should be abolished.
+5-Economic growth must come before environmental protection.
+6-Institutions should be reformed, not torn down.
+7-Artificial intelligence should be strictly limited.
+8-Science is the only reliable path to truth.
+9-Most crime stems from poverty and inequality.
+0+Welfare programs breed dependency.
+1+Governments should censor dangerous speech.
+2-Art should challenge social norms.
+3+Immigration should be sharply reduced.
+4+Nations should intervene abroad to topple dictators.
+5+Meat consumption should be heavily reduced.
+6+Society needs a complete rebuild from the ground up.
+7+Space colonization should be a top priority.
+8+Children should receive a religious education.
+9+Police need more power and funding.
+0-Healthcare should be free for everyone.
+1-The state should be abolished or shrunk to almost nothing.
+2+Abortion should be heavily restricted.
+3-National identity matters less than being a citizen of the world.
+4-No cause justifies war.
+5-Fossil fuel industries should keep expanding.
+6-Compromise is the heart of good politics.
+7+Automation should be embraced even at the cost of jobs.
+8-Organized religion does more harm than good.
+9-Drug offenders should be treated medically, not jailed.
+0+Private property rights are sacred.
+1+Citizens should obey laws even when they seem unjust.
+2-Sex work should be legal.
+3+Trade protection for domestic industry is necessary.
+4+Military service should be mandatory.
+5+Polluters should be taxed heavily.
+6+Radical change is worth the risk of chaos.
+7-A simple rural life is better than a high-tech one.
+8+Morality ultimately comes from God.
+9+Repeat offenders deserve much longer sentences.
+0-Billionaires should not exist.
+1-Drugs should be fully legal.
+2+Traditions deserve respect simply because they are old.
+3-International bodies should have real power over nations.
+4+Strength, not diplomacy, deters aggression.
+5-Humans may freely exploit natural resources.
+6-Elections are enough to fix society’s problems.
+7+Technological progress should never be slowed.
+8-Religious symbols should be banned from public institutions.
+9-Prisons should be abolished.
+0-The government should set prices for essential goods.
+0+Prices set by supply and demand are the fairest prices.
+0-Central planning can outperform markets in key sectors.
+0+Competition drives innovation better than coordination does.
+0-Banks and finance should be publicly controlled.
+0+State-run services should be privatized wherever possible.
+0-The economy should be organized to meet needs, not to make profit.
+0+Minimum wage laws do more harm than good.
+0-Markets need heavy regulation to work fairly.
+0+Businesses should be free to hire, fire and set prices as they choose.
+10+The needs of the community outweigh the wishes of the individual.
+10-Individual rights should never be sacrificed for the common good.
+10+People should be expected to sacrifice for their nation or community.
+10-Everyone is responsible for their own success or failure.
+10+Big decisions should be made together as a community.
+10-Personal freedom matters more than social harmony.
+10+Cooperation is more important than competition.
+10-I would rather rely on myself than on a group.
+10+Belonging to a community gives life its meaning.
+10-Nobody should be forced to contribute to collective projects.
+10+Society works best when people look out for each other first.
+10-Being an individual matters more than belonging to a class, nation or faith.
+1+Society needs strong rules enforced from above.
+1-Protest should never be restricted.
+2+Schools should teach traditional values.
+2-Society should move on from old customs.
+3+Citizenship should depend on shared language and culture.
+3-Cultural mixing makes societies stronger.
+4+Defense spending should be the top budget priority.
+4-Foreign military bases should be closed.
+5+Wild places should be protected even if it costs jobs.
+5-Preserving nature should never limit economic development.
+6+Existing power structures must be dismantled, not reformed.
+6-Stable institutions matter more than sweeping change.
+7+Humans should merge with machines if it improves life.
+7-Society should abandon technologies it cannot maintain simply.
+8+Religious leaders should have a say in laws.
+8-Religion is a private matter, not a public one.
+9+Mandatory minimum sentences are necessary.
+9-Punishment should repair harm, not inflict pain.`.split("\n").map(s=>{const m=s.match(/^(\d+)([+-])(.*)$/);return{a:+m[1],g:m[2]=="+"?1:-1,t:m[3]}});
+{let sd=11;const r=()=>(sd=sd*16807%2147483647)/2147483647;for(let k=Q.length-1;k>0;k--){const j=Math.floor(r()*(k+1));[Q[k],Q[j]]=[Q[j],Q[k]]}}
+const B=`Anarcho-Communism|0 0 2 0 1 5 8 5 0 1 7|Stateless, classless society with common ownership and free association.
+Anarcho-Capitalism|9 0 4 3 3 3 7 7 2 4 0|Abolish the state; private firms and voluntary contracts handle everything.
+Libertarianism|8 1 3 4 3 3 4 6 3 3 1|Maximum personal and economic freedom with a very limited government.
+Classical Liberalism|7 2 4 4 4 3 3 6 4 4 2|Individual rights, free trade and limited, law-bound government.
+Social Liberalism|5 2 1 2 3 5 2 6 2 2 3|Individual freedom backed by a safety net and regulated markets.
+Social Democracy|3 3 2 2 3 6 2 6 2 3 5|Capitalism tamed by strong unions, public services and redistribution.
+Democratic Socialism|2 3 1 2 2 6 4 6 1 2 6|Gradually socialize the economy through democratic elections.
+Market Socialism|5 3 2 2 2 5 4 6 1 3 5|Worker-owned firms competing in a market economy.
+Marxism-Leninism|0 8 4 3 5 4 9 6 0 6 8|A vanguard party runs a one-party state to build communism.
+Maoism|0 8 5 5 5 3 9 5 0 7 9|Peasant-based revolution and permanent mass struggle under party leadership.
+Trotskyism|0 5 2 1 4 4 9 6 0 4 7|Permanent international revolution led by workers against bureaucracy.
+Syndicalism|1 2 3 2 3 5 8 5 2 3 7|Unions take over industry and run society directly.
+Council Communism|0 1 2 0 1 4 8 6 0 2 7|Workers’ councils rule directly, with no party or state above them.
+Eco-Socialism|1 3 1 1 2 9 6 6 1 2 6|Common ownership of the economy within ecological limits, using clean technology.
+Green Anarchism|1 0 2 1 1 9 8 5 1 1 5|Stateless, decentralized communities built around ecological balance.
+Degrowth|2 3 2 2 2 9 4 3 2 3 6|Deliberately shrink resource-heavy consumption while improving wellbeing and equality.
+Eco-Modernism|6 3 2 2 3 8 3 9 1 3 3|Decouple human prosperity from nature through nuclear, efficient farming and clean tech.
+Technocracy|3 6 3 3 4 4 3 9 1 5 6|Experts, not politicians, should run policy by data and science.
+Transhumanism|6 3 0 1 3 4 4 9 0 3 2|Use technology to radically enhance human minds and bodies.
+Accelerationism|8 3 2 3 4 1 8 9 1 4 2|Speed up technological and economic change to break the old order.
+Neoliberalism|8 3 3 2 4 3 2 7 3 4 2|Deregulated markets, privatization and global free trade drive prosperity.
+Conservatism|7 4 7 6 6 3 1 5 7 6 5|Preserve proven institutions and change society slowly and cautiously.
+Paleoconservatism|6 5 8 8 5 3 3 4 7 6 6|Tradition, nation and local community above global markets and empire.
+Neoconservatism|7 5 6 6 9 3 2 6 6 7 5|Strong military and active promotion of liberal democracy abroad.
+Christian Democracy|5 4 7 4 4 5 1 5 8 5 6|Faith-informed politics blending family values with a social market economy.
+Social Conservatism|5 5 9 7 5 3 2 4 9 7 7|Defend traditional morals, family and religion through law and culture.
+Fiscal Conservatism|9 3 5 5 5 2 1 6 5 5 3|Low taxes, balanced budgets and restrained government spending.
+Fascism|3 9 8 9 9 3 9 6 5 8 9|Ultra-nationalist one-party state demanding total loyalty and national rebirth.
+Nazism|3 9 9 9 9 3 9 6 3 9 9|Genocidal racial ideology built on totalitarian dictatorship and conquest.
+Falangism|4 8 9 8 7 3 7 4 9 8 9|Authoritarian Catholic nationalism with corporatist economics.
+Monarchism|5 6 8 7 6 4 3 3 8 6 7|Hereditary or sacred monarchy as the source of order and continuity.
+Theocracy|4 8 9 6 6 3 6 3 9 8 8|Religious law and clergy hold the highest political authority.
+Islamism|4 7 9 5 6 3 7 3 9 8 8|Politics and law organized around Islamic principles and identity.
+Populism|5 5 5 7 5 4 6 5 4 6 6|The virtuous people versus a corrupt elite.
+Right Populism|6 6 7 8 6 3 6 5 5 7 7|Nationalist, anti-establishment politics focused on borders, culture and sovereignty.
+Left Populism|2 4 2 5 3 5 6 5 2 4 6|Anti-elite politics aimed at inequality and corporate power.
+Authoritarianism|5 8 7 6 6 3 4 6 4 8 7|Concentrated power and obedience valued over personal freedom.
+Totalitarianism|2 9 7 7 7 3 8 6 3 9 9|The state seeks control over every part of public and private life.
+Minarchism|8 1 4 4 4 3 3 6 3 4 1|A tiny state limited to courts, police and defense.
+Georgism|5 2 2 3 2 6 3 6 2 3 4|Tax land and natural resources rather than labor or production.
+Distributism|4 3 7 5 3 6 3 3 7 4 6|Widespread small-scale property ownership instead of big capital or big state.
+Communitarianism|4 4 6 5 3 5 3 4 6 5 8|Community bonds and shared values come before pure individualism.
+Progressivism|3 3 1 2 3 6 4 7 1 2 4|Use government and reform to steadily expand equality and rights.
+Cosmopolitanism|5 2 2 0 2 5 3 6 2 3 3|Humanity as one community with open borders and shared institutions.
+Pacifism|4 2 3 1 0 6 3 4 3 1 4|Reject war and violence as political tools.
+Primitivism|2 1 3 2 2 9 9 0 3 2 5|Reject industrial civilization and return to simpler, low-technology living.
+Luddism|3 3 6 5 3 7 7 0 4 4 6|Resist technologies that displace workers and communities.
+Isolationism|5 4 6 8 1 4 3 4 5 5 5|Avoid foreign entanglements and stay out of other nations’ affairs.
+Imperialism|6 6 6 9 9 2 3 6 5 7 7|Expand national power and influence through conquest or dominance.
+Fabianism|3 4 3 3 3 5 1 6 2 3 5|Gradual, patient reform toward socialism through policy and persuasion.
+Centrism|5 4 4 4 4 5 2 5 4 4 4|Moderate blend of left and right ideas with pragmatic compromise.
+Third Way|5 3 3 3 4 5 1 6 3 4 4|Market-friendly economics paired with social-democratic goals.
+Objectivism|9 1 3 3 4 2 4 8 0 5 0|Rational self-interest and laissez-faire capitalism as the moral ideal.
+Libertarian Socialism|2 1 2 1 2 6 7 5 1 2 6|Reject both state and capitalism for a free, self-managed cooperative society.
+Mutualism|5 1 3 2 2 5 4 5 2 2 5|Cooperatives, mutual credit and fair exchange without exploitation.
+Gaullism|5 6 6 8 7 4 2 5 5 6 6|A strong, independent nation led by a powerful, above-party leader.
+Peronism|3 6 6 7 4 4 5 4 6 6 7|Nationalist labor politics with a strong leader and social justice promises.
+Kemalism|5 6 4 8 5 4 5 6 0 6 6|Secular, modernizing nationalism driven by a strong state.
+Ba’athism|3 8 6 8 7 3 7 5 3 7 7|Pan-Arab secular nationalism under a single-party state.
+Juche|1 9 7 9 9 3 5 5 1 9 9|Extreme self-reliance and a leader-centered, militarized one-party state.
+Confucianism|5 6 7 5 3 5 1 3 6 5 8|Social harmony through duty, hierarchy, education and virtuous rule.
+Authoritarian Socialism|1 8 4 4 4 4 6 6 2 6 8|Socialism imposed and run by a strong central state.
+Marxism|0 3 2 1 2 5 8 7 0 3 7|Class struggle, historical materialism, workers owning production.
+Leninism|1 7 3 2 3 4 9 6 0 6 8|A disciplined vanguard party seizes power to build socialism.
+Stalinism|1 9 5 6 7 3 6 7 0 9 9|Personalist party-state, forced industrialization, socialism in one country.
+Hoxhaism|1 9 5 6 6 3 7 5 0 8 9|Rigid anti-revisionist Marxism-Leninism.
+Titoism|2 5 4 4 4 4 5 6 1 5 7|Self-managed socialism independent of both blocs.
+Guevarism|1 5 3 1 8 4 9 5 0 6 8|Guerrilla revolution and the creation of a new socialist person.
+Dengism|4 8 5 7 5 3 3 8 0 7 7|One-party rule with market reforms and state-guided growth.
+Left Communism|0 1 2 0 1 5 8 6 0 1 7|Anti-parliamentary, anti-vanguard communism.
+Luxemburgism|0 1 2 0 1 5 8 6 0 1 7|Mass strikes and revolution with democracy kept intact.
+Eurocommunism|2 3 1 2 2 5 4 6 1 2 7|Communist goals pursued through democratic institutions.
+Revisionist Socialism|2 3 2 2 2 5 2 6 1 3 6|Reach socialism by gradual reform, not revolution.
+Utopian Socialism|1 2 2 2 1 6 6 4 3 1 8|Model communities that show a better way to live.
+Anarcho-Syndicalism|0 0 2 0 1 5 8 5 0 1 7|Revolutionary unions run production and replace the state.
+Anarcho-Collectivism|0 0 2 0 2 5 8 5 0 1 7|Stateless society with collectively owned means of production.
+Individualist Anarchism|7 0 3 3 2 4 6 5 1 2 0|Self-ownership and voluntary exchange without a state.
+Insurrectionary Anarchism|2 0 2 1 3 5 9 4 0 1 3|Direct attack on state and capital rather than slow organizing.
+Anarcha-Feminism|1 0 0 0 1 5 7 5 0 0 6|Abolish hierarchy of both state and patriarchy.
+Egoism|6 0 2 3 2 4 6 5 0 3 0|The self is the only authority worth obeying.
+Post-Left Anarchy|3 0 1 1 1 5 8 4 0 1 2|Rejects organized left politics in favor of personal liberation.
+Autonomism|1 0 1 0 1 5 8 6 0 1 7|Self-organized worker and social movements outside parties.
+Situationism|2 1 0 1 1 5 8 5 0 1 5|Critique of consumer spectacle through disruption and play.
+Anarcho-Pacifism|2 0 2 1 0 6 6 3 3 0 4|Stateless society built entirely on nonviolence.
+Christian Anarchism|3 0 5 2 0 6 6 2 8 1 5|Christ's teaching rules out coercive government.
+Communalism|2 1 1 1 2 7 6 5 0 1 7|Confederated, directly democratic municipalities and social ecology.
+Democratic Confederalism|2 1 1 1 4 6 6 5 0 2 7|Stateless democracy of councils, women's liberation and ecology.
+Zapatismo|2 1 3 3 3 6 7 3 2 2 8|Indigenous autonomy and governing by obeying.
+Participatory Economics|1 1 1 1 1 6 6 5 0 1 7|Councils plan the economy through democratic participation.
+Fully Automated Luxury Communism|0 2 0 1 1 6 7 9 0 1 7|Automation delivers abundance for all.
+Resource-Based Economy|1 5 1 0 0 6 6 9 0 1 7|Technology and shared resources replace money.
+Cooperativism|3 2 2 2 2 6 3 5 1 2 6|Worker and consumer cooperatives form the economy.
+Liberal Socialism|3 2 1 2 2 5 3 6 1 2 5|Socialist economics inside liberal rights and pluralism.
+Labourism|3 3 4 4 3 5 2 6 2 4 6|Trade-union based politics for working people's gains.
+Nehruvian Socialism|3 4 3 4 3 4 3 6 1 3 6|Secular, mixed economy with state-led development.
+African Socialism|2 3 5 5 2 5 4 4 4 3 8|Communal traditions as the base of a socialist society.
+Buddhist Socialism|2 3 5 4 1 7 4 3 7 2 7|Compassion and nonviolence applied to economic life.
+Liberation Theology|1 2 3 3 2 6 7 4 8 2 8|Faith demands siding with the poor against structural injustice.
+Christian Socialism|2 3 5 4 2 6 3 4 8 3 8|Gospel ethics as the case for common ownership and welfare.
+Left-Libertarianism|4 1 2 2 2 5 4 5 1 2 3|Self-ownership with equal claims on natural resources.
+Voluntaryism|9 0 4 3 2 3 5 6 3 3 1|All social relations should be consensual.
+Agorism|9 0 3 3 2 3 8 7 1 3 1|Counter-economics: black markets as the road to freedom.
+Paleolibertarianism|9 3 7 5 3 3 4 5 5 5 2|Free markets paired with cultural traditionalism.
+Cypherpunk|8 1 2 2 2 3 7 9 1 2 1|Cryptography as a shield for privacy and freedom.
+Pirate Politics|5 1 0 1 1 5 4 8 0 1 3|Digital rights, open culture, transparent government.
+Ordoliberalism|7 4 4 4 3 4 2 6 3 5 4|Strong state rules to keep markets competitive.
+Social Market Economy|5 3 4 4 3 5 2 6 3 4 5|Free competition combined with social protection.
+Keynesianism|4 3 3 3 3 5 2 6 2 4 5|Governments steer demand to tame business cycles.
+Monetarism|8 3 4 4 4 3 3 6 3 5 2|Control the money supply and let markets work.
+Supply-Side Economics|8 3 4 4 5 2 3 6 3 5 2|Low taxes and deregulation drive growth.
+Modern Monetary Theory|3 3 2 3 3 5 4 6 1 3 5|A currency-issuing state is limited by inflation, not debt.
+Thatcherism|9 5 6 6 6 3 4 6 4 6 2|Privatization, weak unions and a strong state.
+Reaganism|8 4 6 6 8 3 3 6 6 6 3|Tax cuts, deregulation, military strength and traditional values.
+Developmental State|5 7 5 7 4 3 3 7 2 6 6|State directs industrial strategy for rapid growth.
+State Capitalism|5 7 4 6 5 3 3 7 2 6 6|Markets exist but the state owns or steers key firms.
+Mercantilism|6 6 5 8 6 3 2 6 3 5 5|Trade surplus and national wealth as state goals.
+Economic Nationalism|5 5 5 9 5 3 3 6 3 4 6|Tariffs and domestic industry first.
+Social Credit|4 4 5 4 3 4 5 5 5 4 6|Money reform distributes purchasing power to citizens.
+Corporatism|4 7 6 6 5 3 4 5 5 6 8|Society organized into state-linked occupational bodies.
+National Syndicalism|3 7 6 7 6 3 6 5 4 6 8|Unions bound to the nation and the state.
+Integralism|4 6 9 5 3 4 3 4 9 5 7|State should serve religious truth.
+Carlism|5 7 9 7 6 3 5 3 9 6 7|Traditional Catholic monarchy and local liberties.
+Absolutism|5 9 9 7 6 3 3 3 8 7 8|Monarch holds unchecked power.
+Constitutional Monarchism|6 3 6 6 4 4 1 5 5 4 6|Crown as symbol of continuity under elected government.
+Jacobinism|3 7 2 7 7 4 9 5 0 8 8|Centralized republic imposed in the name of virtue.
+Bonapartism|5 8 5 8 8 4 5 6 3 7 7|Strong leader above parties, backed by the people and army.
+National Bolshevism|2 9 6 9 7 4 8 5 2 8 9|Fusion of nationalism and radical state socialism.
+Strasserism|2 7 6 9 6 4 7 5 3 7 9|Anti-capitalist ultranationalism.
+Third Positionism|3 7 7 9 7 4 7 4 4 7 9|Rejects both capitalism and communism for national revival.
+Ultranationalism|5 8 7 9 8 3 6 5 4 8 8|Nation above all, with aggressive pursuit of its interests.
+Ethnonationalism|5 6 8 9 6 3 5 4 4 6 8|Nation defined by shared ethnicity and descent.
+Civic Nationalism|5 3 4 8 5 4 2 6 3 4 6|Nation defined by shared citizenship and values.
+Zionism|5 5 5 8 7 4 5 6 5 6 7|National self-determination of the Jewish people.
+Pan-Arabism|3 6 6 8 6 4 6 5 5 6 7|Unity of the Arab world.
+Pan-Africanism|3 3 4 6 4 5 5 5 4 4 7|Solidarity and unity of African peoples.
+Black Nationalism|3 4 4 8 4 4 7 5 5 4 8|Self-determination and institutions for Black communities.
+Nasserism|2 7 5 8 6 3 6 6 4 6 7|Arab socialism, anti-imperialism and a strong leader.
+Chavismo|1 5 3 6 5 4 7 4 2 4 7|Twenty-first-century socialism with oil-funded redistribution.
+Gandhism|3 2 5 4 0 7 3 1 6 1 6|Nonviolence, village self-rule and simple living.
+Eurasianism|5 7 8 8 6 4 4 4 7 6 7|Russia as a separate civilization with its own empire.
+Hindutva|5 6 8 8 6 4 4 5 9 6 7|Indian nationhood defined by Hindu culture.
+Salafism|5 8 9 5 6 3 4 3 9 8 8|Return to the practice of Islam's earliest generations.
+Islamic Modernism|4 3 5 4 3 5 2 6 7 3 6|Reconcile Islam with science and modern institutions.
+Muslim Democracy|5 3 6 5 3 5 2 6 7 4 6|Democratic politics guided by Islamic values.
+Khomeinism|3 8 9 7 7 3 8 4 9 8 8|Rule of the Islamic jurist.
+Christian Reconstructionism|5 8 9 6 6 3 6 4 9 8 7|Biblical law as the basis of civil government.
+Secular Humanism|5 3 0 1 2 5 2 7 0 2 3|Ethics from reason and compassion without religion.
+Liberal Feminism|5 3 0 2 2 5 3 6 1 2 4|Equal rights and opportunity through law and reform.
+Radical Feminism|2 3 0 1 1 5 8 5 0 3 6|Patriarchy is the root structure to dismantle.
+Ecofeminism|2 2 1 2 1 8 6 3 3 1 6|Links domination of women with domination of nature.
+Decolonialism|2 2 2 4 3 6 7 4 3 2 7|Dismantle colonial structures in power and knowledge.
+Anti-Imperialism|2 3 3 5 3 5 6 5 2 3 7|Opposes foreign domination and empire.
+Environmentalism|4 3 2 2 2 8 4 4 3 3 6|Protect ecosystems through policy and regulation.
+Deep Ecology|3 3 3 3 1 9 6 1 4 3 6|Nature has intrinsic value beyond human use.
+Bioregionalism|3 2 4 5 2 8 4 2 3 2 7|Live and govern by natural regions and watersheds.
+Green Capitalism|7 3 3 3 3 7 2 7 2 3 3|Markets and prices can solve environmental problems.
+Agrarianism|5 3 7 6 3 8 2 1 6 3 7|Rural, farm-based life as the moral core of society.
+Localism|5 3 5 6 3 6 3 3 4 3 7|Decisions and economies belong at community scale.
+Effective Altruism|4 3 1 1 2 5 3 8 1 2 3|Use evidence to do the most good.
+Utilitarianism|5 3 1 2 3 5 3 7 1 3 3|Choose what maximizes overall wellbeing.
+Technoprogressivism|3 3 0 1 1 6 4 9 0 2 5|Technology should extend freedom and equality.
+Left Accelerationism|1 3 0 1 1 5 8 9 0 1 6|Speed technology and capitalism's contradictions past capitalism.
+Neoreaction|7 8 8 6 5 3 7 8 3 7 3|Rejects democracy for corporate or monarchic rule.
+Fusionism|7 4 7 6 6 3 3 6 6 5 4|Free markets joined to traditional values and strong defense.
+Burkean Conservatism|6 4 7 6 4 4 1 5 6 5 6|Slow change guided by tradition and inherited institutions.
+One-Nation Conservatism|4 4 6 6 4 5 1 5 5 4 6|Paternalist conservatism that supports social cohesion.
+National Conservatism|6 6 8 9 6 3 4 5 6 6 6|Nation, tradition and sovereignty over globalism.
+Illiberal Democracy|6 7 8 8 5 3 4 5 6 6 6|Elected government with weak limits and strong national identity.
+Reactionism|6 7 9 7 5 3 7 3 7 7 7|Restore an earlier social order.
+Traditionalism|5 8 9 6 6 3 6 2 9 7 8|Perennial wisdom and hierarchy against modernity.
+Blue Labour|3 4 6 6 4 4 3 5 5 5 7|Labour politics rooted in family, work and community.
+Liberal Conservatism|7 3 5 5 4 4 2 6 4 4 3|Market liberalism with respect for tradition.
+Radicalism|5 2 1 3 3 4 7 5 1 2 4|Sweeping democratic and secular reform.
+Civic Republicanism|5 3 3 5 4 4 5 5 2 3 5|Freedom as non-domination, sustained by active citizens.
+Jeffersonian Democracy|6 2 5 5 4 4 3 4 3 3 4|Small farmers, limited government, local self-rule.
+Federalism|5 4 4 5 4 4 2 5 3 4 5|Power divided between central and regional governments.
+Separatism|6 3 6 9 4 4 6 5 4 4 5|A region or people should govern itself apart.
+Direct Democracy|4 1 2 3 2 5 4 6 1 3 5|Citizens decide laws themselves by vote.
+Meritocracy|7 5 4 5 4 4 3 6 2 5 4|Power and reward go to the most capable.
+Epistocracy|6 6 3 4 3 4 4 7 1 5 3|Those with knowledge should have more say.
+Stratocracy|5 9 7 7 9 3 5 5 3 8 8|Military rule.
+Pragmatism|5 4 4 4 4 4 3 6 3 4 4|Judge ideas by results, not doctrine.
+Non-Interventionism|6 3 5 7 1 4 3 5 3 3 3|Avoid foreign entanglements and wars.
+Realism|5 5 5 6 6 4 3 5 3 5 5|States pursue power and interest, not ideals.
+Liberal Internationalism|5 3 2 1 3 5 2 6 2 3 5|Cooperation through institutions, trade and law.
+World Federalism|4 4 1 0 1 5 4 6 2 3 6|A democratic world government.
+Globalism|7 4 2 0 3 4 2 7 2 3 5|Open borders for trade, capital and cooperation.
+Social Darwinism|8 5 6 6 6 2 3 6 3 7 1|Competition and survival of the fittest shape society.
+Christian Communism|0 2 5 2 1 6 7 3 8 1 9|Shared property as the model of the early church.
+Islamic Socialism|2 4 7 5 3 5 4 4 8 4 8|Islamic ethics joined to wealth redistribution.
+Sankarism|1 5 3 4 4 6 7 4 2 4 8|Anti-imperial self-reliance and incorruptible public service.
+Castroism|1 8 4 6 6 4 8 5 1 7 8|Cuban revolutionary socialism under a charismatic leader.
+Sandinismo|2 5 3 5 5 5 7 4 4 5 7|Nicaraguan nationalism, land reform and anti-imperialism.
+Cybernetic Planning|1 6 2 2 2 5 5 9 0 2 8|Computer-aided planning of the whole economy.
+Neo-Marxism|1 2 1 1 2 5 7 6 0 2 7|Critical theory updating Marx for modern capitalism.
+Black Radical Tradition|1 2 1 3 2 5 8 5 3 1 7|Black resistance as a source of anti-capitalist thought.
+Bundism|1 2 3 1 2 5 6 4 3 2 8|Jewish workers' autonomy and socialism in the diaspora.
+Labor Zionism|2 4 4 7 5 5 5 5 3 4 8|Jewish national revival through socialist settlement.
+Rawlsian Liberalism|4 3 1 2 2 5 2 6 1 2 5|Justice as fairness behind a veil of ignorance.
+Solidarism|4 4 5 4 3 5 3 5 6 3 8|Mutual obligation between classes and citizens.
+Personalism|4 3 5 3 3 5 3 4 6 2 5|Human dignity first, with community but without collectivism.
+Catholic Social Teaching|4 4 6 4 3 6 2 4 9 3 7|Dignity, solidarity and subsidiarity in economic life.
+Religious Right|7 6 9 7 7 3 4 4 9 8 5|Conservative faith values in law and public life.
+Christian Nationalism|6 7 9 9 7 3 5 3 9 8 7|Nation understood as a Christian political community.
+Pan-Turkism|5 7 7 9 7 3 5 5 4 7 8|Unity of Turkic peoples.
+Pan-Slavism|5 6 8 9 6 4 5 4 6 6 7|Unity of Slavic peoples.
+Welfare Nationalism|3 5 7 9 5 4 3 5 5 6 8|Generous benefits reserved for the native-born.
+Singularitarianism|5 3 2 2 2 4 5 9 1 2 3|Superintelligence will remake civilization.
+Solarpunk|2 1 0 1 1 8 6 7 1 1 6|Renewable, community-run, hopeful future.
+Legalism|3 9 7 7 6 3 3 4 1 9 5|Strict law and strong rulers keep order.
+Taoism|5 0 6 2 0 8 3 1 5 0 4|Rule lightly and follow the natural way.
+Mohism|3 5 4 0 1 5 4 4 5 3 6|Impartial care and strict opposition to aggression.
+Natural Law Theory|5 4 6 4 3 5 2 4 6 5 5|Law should follow universal moral order.
+Whiggism|7 3 5 6 5 3 2 5 4 4 4|Parliament, property rights and gradual liberty.
+Radical Centrism|5 4 3 3 3 5 3 6 2 3 4|Bold reform that rejects left-right camps.
+Austromarxism|1 2 2 1 2 5 5 6 0 2 7|Democratic socialism with national-cultural autonomy.
+Gay Liberation|3 2 0 1 1 5 6 5 1 1 5|Equal dignity and freedom for sexual minorities.
+Womanism|3 3 3 3 2 5 6 4 5 2 7|Black women's experience at the center of liberation.
+Animal Liberation|4 2 1 1 1 7 6 4 1 3 5|Animals' interests deserve equal moral weight.
+Colonialism|7 8 7 8 8 2 2 7 5 7 6|Rule and settle other lands for the metropole.
+Oligarchism|8 7 6 5 5 2 2 6 3 6 3|Small elites should hold power.
+Aristocratism|6 6 9 6 5 4 1 3 5 5 7|Rule by hereditary or cultivated elite.
+Classical Marxism|0 3 2 1 2 5 8 7 0 3 7|Orthodox historical materialism.
+Prussianism|5 8 8 8 8 3 2 5 5 7 8|Discipline, duty and a militarized state.
+Meritocratic Technocracy|6 6 2 3 3 4 3 9 1 4 4|Expert-run government judged by performance.
+Social Anarchism|1 0 2 0 1 5 8 5 0 1 7|Anarchism built on solidarity and mutual aid.
+Anarcho-Mutualism|4 0 2 1 1 5 7 5 0 1 4|Stateless society of mutual credit and free exchange.
+Conservative Socialism|2 5 7 6 4 5 2 5 6 5 7|Collective economy with traditional values.
+Liberal Nationalism|5 3 3 7 4 4 3 6 2 3 5|National identity combined with liberal rights.
+Technolibertarianism|9 1 2 2 2 3 5 9 1 2 1|Technology plus markets as the road to freedom.
+Social Libertarianism|3 1 1 1 1 6 5 5 0 1 6|Freedom through equality and community.
+Vegan Anarchism|2 0 0 0 0 7 8 4 0 0 5|No domination of humans or animals.`.split("\n").map(s=>{const[n,d,ds]=s.split("|");const f=x=>x.split(" ").map((c,j)=>(c-4.5)/4.5*100*(j==6?-1:1));return{n,ds,v:f(d),iv:f(IV[n]||d)}});
+const I=B.map(b=>({n:b.n,b:b.n,ds:b.ds,v:b.v,iv:b.iv}));
+const L=["Strongly Agree","Agree","Neutral / Unsure","Disagree","Strongly Disagree"];
+let ans=[],fo=[],i=0,st="q";const $=document.getElementById("app");
+const FO=["Immediately: tear it down and build it now","Gradually: step by step through reform and consent","Through a strong transitional authority that withers away later"];
+function start(){ans=[];fo=[];i=0;st="s";$.innerHTML=`<h1>PoliMatrix</h1><p>${Q.length} statements, agree or disagree. At the end you get two ideologies: the one you want in the end, and the one you would actually act on.</p><div class="card"><p>Those two aren’t always the same, so when you back something radical it’ll ask how you’d want to get there.</p><button class="p" onclick="start0()">Begin</button><button onclick="srch()">Browse ideologies and thinkers</button><h2>Have a code?</h2><input id="cin" placeholder="PM120-..."><button onclick="loadCode(document.getElementById('cin').value)">Show my results</button><p id="cerr"></p></div>`}function start0(){ask()}
+function ask(){st="q";const q=Q[i];$.innerHTML=`<div class="bar"><i style="width:${i/Q.length*100}%"></i></div><p>${A[q.a][0]} · Question ${i+1} of ${Q.length}</p><div class="card"><div class="q">${q.t}</div>${L.map((l,k)=>`<button onclick="pick(${2-k})">${k+1}. ${l}</button>`).join("")}</div><div class="row"><button onclick="back()" ${i?"":"disabled"}>← Back</button></div>`}
+function pick(v){ans[i]=v;delete fo[i];const f=FU.find(p=>Q[i].t.startsWith(p[0]));if(v>0&&f)return follow(f);nxt()}
+function nxt(){i++;i<Q.length?ask():res()}
+function follow(f){st="f";$.innerHTML=`<div class="bar"><i style="width:${i/Q.length*100}%"></i></div><p>Follow-up</p><div class="card"><p>You agreed: “${Q[i].t}”</p><div class="q">${f[1]}</div>${f.slice(2).map((l,k)=>`<button onclick="fo[i]=${k};nxt()">${k+1}. ${l}</button>`).join("")}</div><div class="row"><button onclick="ask()">← Back</button></div>`}
+function back(){if(i>0){i--;ask()}}
+document.addEventListener("keydown",e=>{if(st=="q"&&e.key>=1&&e.key<=5)pick(3-e.key);else if(st=="f"&&e.key>=1&&e.key<=3){fo[i]=e.key-1;nxt()}});
+function tier(s,a){const v=Math.abs(s);return v<15?`Balanced ${a[1]}/${a[2]}`:`${v<40?"Leaning":v<70?"Moderately":"Strongly"} ${s<0?a[1]:a[2]}`}
+function sc(cur){return A.map((_,a)=>{let r=0,n=0;Q.forEach((q,k)=>{if(q.a==a){n++;r+=q.g*ans[k]*(cur&&fo[k]!=null?[1,.5,.5][fo[k]]:1)}});if(cur)fo.forEach(f=>{if(a==1)r+=[-1,0,3][f];if(a==6)r+=[2,-2,1][f]});return Math.max(-100,Math.min(100,r/(n*2)*100*(a==6?-1:1)))})}
+function mt(S,k){return I.map(x=>({n:x.n,b:x.b,ds:x.ds,d:Math.sqrt(x[k].reduce((s,c,j)=>s+(c-S[j])**2,0))})).sort((a,b)=>a.d-b.d)}
+const CV={"Ayn Rand":0,"Murray Rothbard":0,"Ludwig von Mises":1,"Friedrich Hayek":2,"Milton Friedman":2,"John Stuart Mill":1,"Emma Goldman":1,"Noam Chomsky":3,"Karl Marx":7,"Vladimir Lenin":8,"Mao Zedong":9,"Mikhail Bakunin":6,"Confucius":8,"Thomas Jefferson":2,"Mahatma Gandhi":6};
+const PI={"Karl Marx": "Marxism", "Vladimir Lenin": "Leninism", "Leon Trotsky": "Trotskyism", "Rosa Luxemburg": "Luxemburgism", "Che Guevara": "Guevarism", "Mao Zedong": "Maoism", "Fidel Castro": "Marxism-Leninism", "Mikhail Bakunin": "Anarcho-Collectivism", "Peter Kropotkin": "Anarcho-Communism", "Anton Pannekoek": "Council Communism", "Emma Goldman": "Anarcho-Communism", "Adam Smith": "Classical Liberalism", "Friedrich Hayek": "Classical Liberalism", "Milton Friedman": "Monetarism", "John Maynard Keynes": "Keynesianism", "Murray Rothbard": "Anarcho-Capitalism", "Ludwig von Mises": "Libertarianism", "Henry George": "Georgism", "Ayn Rand": "Objectivism", "Mahatma Gandhi": "Gandhism", "Margaret Thatcher": "Thatcherism", "Ronald Reagan": "Reaganism", "Edmund Burke": "Burkean Conservatism", "Thomas Paine": "Radicalism", "John Locke": "Classical Liberalism", "John Stuart Mill": "Classical Liberalism", "John Rawls": "Social Liberalism", "Mustafa Kemal Ataturk": "Kemalism", "Charles de Gaulle": "Gaullism", "Noam Chomsky": "Libertarian Socialism", "Peter Singer": "Utilitarianism", "Confucius": "Confucianism", "Thomas Jefferson": "Jeffersonian Democracy", "Angela Merkel": "Christian Democracy", "Franklin D. Roosevelt": "Social Liberalism", "Thomas Piketty": "Social Democracy", "Thomas Sankara": "Pan-Africanism", "Henry David Thoreau": "Individualist Anarchism", "Elinor Ostrom": "Communitarianism"},MC={"Karl Marx": "EPW", "Vladimir Lenin": "PSW", "Leon Trotsky": "W", "Rosa Luxemburg": "EPW", "Che Guevara": "A", "Mao Zedong": "PWS", "Fidel Castro": "S", "Mikhail Bakunin": "PW", "Peter Kropotkin": "EPW", "Anton Pannekoek": "PW", "Maximilien Robespierre": "S", "Emma Goldman": "AW", "Adam Smith": "P", "Friedrich Hayek": "P", "Murray Rothbard": "PW", "Ludwig von Mises": "P", "Henry George": "AW", "Ayn Rand": "PW", "John Stuart Mill": "EW", "Noam Chomsky": "AW", "Mahatma Gandhi": "PSW", "Martin Luther King Jr.": "WP", "Nehru": "", "Jawaharlal Nehru": "W", "Vaclav Havel": "AW", "Henry David Thoreau": "PA", "John Locke": "EW", "Jean-Jacques Rousseau": "W", "Thomas Hobbes": "W", "Niccolo Machiavelli": "SW", "Thomas Paine": "RW", "Edmund Burke": "SW", "Peter Singer": "AW", "Simone de Beauvoir": "AW", "Winston Churchill": "W", "Thomas Jefferson": "PW", "Che Guevara ": "", "Angela Davis": "WP", "Edward Snowden": "A", "Mustafa Kemal Ataturk": "R", "Simon Bolivar": "S", "John Maynard Keynes": "S", "Milton Friedman": "W", "Thomas Piketty": "W", "Karl Polanyi": "P", "Joseph Schumpeter": "P", "Yanis Varoufakis": "WS", "Alexis de Tocqueville": "PS", "Christopher Hitchens": "A", "George Orwell": "A", "Plato": "W", "Aristotle": "W", "Confucius": "W", "Immanuel Kant": "W", "John Rawls": "W"};
+Object.assign(PI,{"Fidel Castro": "Castroism", "Joseph Stalin": "Marxism-Leninism", "Zhou Enlai": "Marxism-Leninism", "Karl Marx": "Marxism"});
+const FD={"Marxism-Leninism": "Joseph Stalin", "Stalinism": "Joseph Stalin", "Leninism": "Vladimir Lenin", "Marxism": "Karl Marx", "Classical Marxism": "Karl Marx", "Maoism": "Mao Zedong", "Trotskyism": "Leon Trotsky", "Anarcho-Communism": "Peter Kropotkin", "Anarcho-Capitalism": "Murray Rothbard", "Objectivism": "Ayn Rand", "Georgism": "Henry George", "Juche": "Kim Il Sung", "Kemalism": "Mustafa Kemal Ataturk", "Gaullism": "Charles de Gaulle", "Peronism": "Juan Peron", "Fascism": "Benito Mussolini", "Nazism": "Adolf Hitler", "Falangism": "Jose Antonio Primo de Rivera", "Mutualism": "Pierre-Joseph Proudhon", "Keynesianism": "John Maynard Keynes", "Monetarism": "Milton Friedman", "Thatcherism": "Margaret Thatcher", "Reaganism": "Ronald Reagan", "Gandhism": "Mahatma Gandhi", "Hoxhaism": "Enver Hoxha", "Titoism": "Josip Broz Tito", "Dengism": "Deng Xiaoping", "Guevarism": "Che Guevara", "Luxemburgism": "Rosa Luxemburg", "Council Communism": "Anton Pannekoek", "Fabianism": "Sidney Webb", "Confucianism": "Confucius", "Ba\u2019athism": "Michel Aflaq", "Nasserism": "Gamal Abdel Nasser", "Chavismo": "Hugo Chavez", "Zionism": "Theodor Herzl", "Utilitarianism": "Jeremy Bentham", "Communalism": "Murray Bookchin", "Democratic Confederalism": "Abdullah Ocalan", "Zapatismo": "Subcomandante Marcos", "Egoism": "Max Stirner", "Deep Ecology": "Arne Naess", "Social Credit": "C. H. Douglas", "Agorism": "Samuel Konkin", "Ordoliberalism": "Walter Eucken", "Social Market Economy": "Ludwig Erhard", "Revisionist Socialism": "Eduard Bernstein", "Utopian Socialism": "Robert Owen", "Black Nationalism": "Marcus Garvey", "Khomeinism": "Ruhollah Khomeini", "Hindutva": "Vinayak Savarkar", "Eurasianism": "Aleksandr Dugin", "Traditionalism": "Julius Evola", "Neoreaction": "Curtis Yarvin", "Accelerationism": "Nick Land", "Burkean Conservatism": "Edmund Burke", "Jeffersonian Democracy": "Thomas Jefferson", "Classical Liberalism": "John Locke", "Neoconservatism": "Irving Kristol", "Liberation Theology": "Gustavo Gutierrez", "Christian Anarchism": "Leo Tolstoy", "Anarcho-Syndicalism": "Rudolf Rocker", "Sankarism": "Thomas Sankara", "Castroism": "Fidel Castro", "Legalism": "Han Fei", "Taoism": "Laozi", "Mohism": "Mozi", "Distributism": "G. K. Chesterton", "Technocracy": "Henri de Saint-Simon", "Personalism": "Emmanuel Mounier", "Solidarism": "Leon Bourgeois", "Social Darwinism": "Herbert Spencer", "Pan-Africanism": "Kwame Nkrumah", "Pan-Arabism": "Michel Aflaq", "Pragmatism": "John Dewey", "Liberal Feminism": "Mary Wollstonecraft", "Primitivism": "John Zerzan", "Black Radical Tradition": "Cedric Robinson", "Radicalism": "Thomas Paine", "Paleoconservatism": "Pat Buchanan", "Federalism": "Alexander Hamilton", "Jacobinism": "Maximilien Robespierre", "Bonapartism": "Napoleon Bonaparte", "Cybernetic Planning": "Stafford Beer", "Catholic Social Teaching": "Pope Leo XIII", "Civic Nationalism": "Ernest Renan", "Rawlsian Liberalism": "John Rawls", "Communitarianism": "Charles Taylor", "Environmentalism": "Rachel Carson", "Neo-Marxism": "Herbert Marcuse", "Left Communism": "Alexandra Kollontai", "Syndicalism": "Daniel De Leon", "Democratic Socialism": "Eugene V. Debs", "Social Democracy": "Eduard Bernstein"},MX={"Karl Marx": "archive/marx", "Friedrich Engels": "archive/engels", "Vladimir Lenin": "archive/lenin", "Leon Trotsky": "archive/trotsky", "Joseph Stalin": "reference/archive/stalin", "Mao Zedong": "reference/archive/mao", "Rosa Luxemburg": "archive/luxemburg", "Antonio Gramsci": "archive/gramsci", "Karl Kautsky": "archive/kautsky", "Nikolai Bukharin": "archive/bukharin", "Alexandra Kollontai": "archive/kollonta", "Clara Zetkin": "archive/zetkin", "Anton Pannekoek": "archive/pannekoek", "Che Guevara": "archive/guevara", "Fidel Castro": "archive/castro", "Enver Hoxha": "reference/archive/hoxha", "Eduard Bernstein": "archive/bernstein", "Georgi Plekhanov": "archive/plekhanov"};
+const PP=`Karl Marx:0321349704:R
+Vladimir Lenin:1833639707:R
+Leon Trotsky:1521539705:R
+Rosa Luxemburg:1210149602:R
+Che Guevara:1632739517:R
+Mao Zedong:1845639508:R
+Fidel Castro:1846638517:R
+Mikhail Bakunin:0020249502:R
+Peter Kropotkin:0020168601:R
+Anton Pannekoek:0120148602:R
+Maximilien Robespierre:3656738458:R
+Simon Bolivar:5658837456:R
+Thomas Sankara:2637568426:R
+Ho Chi Minh:1748648516:R
+Emma Goldman:0000048501:R
+Adam Smith:7354432655:E
+Friedrich Hayek:8354432645:E
+Milton Friedman:9234423734:E
+John Maynard Keynes:4333452734:E
+Murray Rothbard:9043338623:E
+Ludwig von Mises:9244433634:E
+Thomas Piketty:2313363613:E
+Henry George:5223263633:E
+Joseph Schumpeter:7454433835:E
+Yanis Varoufakis:2312354603:E
+Karl Polanyi:3323364533:E
+Elinor Ostrom:4222272523:E
+Ayn Rand:9133424805:E
+Martin Luther King Jr.:3343143582:A
+Mahatma Gandhi:3355064282:A
+Nelson Mandela:3334355563:A
+Malcolm X:3556447476:A
+Greta Thunberg:3212296502:A
+Emmeline Pankhurst:4435447545:A
+Cesar Chavez:2354255473:A
+Harvey Milk:3203244513:A
+Angela Davis:1301258501:A
+Edward Snowden:6112145712:A
+Peter Singer:4201163702:A
+Plato:3975634358:P
+Aristotle:5575542456:P
+John Locke:7354433564:P
+Thomas Hobbes:5965531458:P
+Jean-Jacques Rousseau:3443375254:P
+Immanuel Kant:5342242554:P
+John Stuart Mill:6223342633:P
+John Rawls:4322252533:P
+Friedrich Nietzsche:6553536507:P
+Confucius:5685351365:P
+Niccolo Machiavelli:5757733538:P
+Noam Chomsky:1112156602:P
+Simone de Beauvoir:2201246602:P
+Edmund Burke:6486530376:P
+Thomas Paine:5223347623:P
+Abraham Lincoln:5556633665:S
+Franklin D. Roosevelt:3545742655:S
+Winston Churchill:6678831656:S
+Ronald Reagan:8477822676:S
+Margaret Thatcher:9577725657:S
+Vaclav Havel:5232253442:S
+Otto von Bismarck:5778732656:S
+Napoleon Bonaparte:5858936637:S
+Mustafa Kemal Ataturk:5738647706:S
+Jawaharlal Nehru:3435353713:S
+Charles de Gaulle:5668742556:S
+Angela Merkel:5454451654:S
+Lee Kuan Yew:7866642838:S
+Thomas Jefferson:7244445534:S
+George Orwell:2144345403:W
+Ursula K. Le Guin:2111176411:W
+Henry David Thoreau:5143285252:W
+Christopher Hitchens:6324733604:W
+Alexis de Tocqueville:6354441464:W
+Friedrich Engels:Marxism:REPW
+Antonio Gramsci:Marxism:RPW
+Herbert Marcuse:Marxism:PW
+Theodor Adorno:Marxism:P
+Slavoj Zizek:Marxism:PW
+Jean-Paul Sartre:Marxism:PW
+Richard Wolff:Marxism:EA
+Karl Kautsky:Marxism:EPW
+Nikolai Bukharin:Marxism:RE
+Joseph Stalin:Stalinism:RS
+Enver Hoxha:Hoxhaism:RS
+Josip Broz Tito:Titoism:RS
+Deng Xiaoping:Dengism:SE
+Kim Il Sung:Juche:RS
+Eduard Bernstein:Revisionist Socialism:EPW
+Clara Zetkin:Marxism:RA
+Alexandra Kollontai:Left Communism:RW
+Rudolf Rocker:Anarcho-Syndicalism:AW
+Errico Malatesta:Anarcho-Communism:RW
+Pierre-Joseph Proudhon:Mutualism:EPW
+Max Stirner:Egoism:P
+William Godwin:Individualist Anarchism:PW
+Lysander Spooner:Individualist Anarchism:PW
+Benjamin Tucker:Individualist Anarchism:W
+Murray Bookchin:Communalism:PAW
+David Graeber:Anarcho-Communism:AEW
+Voltairine de Cleyre:Individualist Anarchism:AW
+Hans-Hermann Hoppe:Anarcho-Capitalism:EP
+David Friedman:Anarcho-Capitalism:EW
+Robert Nozick:Minarchism:P
+Frederic Bastiat:Classical Liberalism:EW
+David Ricardo:Classical Liberalism:E
+Thomas Malthus:Classical Liberalism:E
+Jeremy Bentham:Utilitarianism:P
+Alexander Hamilton:Federalism:SE
+James Madison:Federalism:SP
+John Adams:Federalism:SW
+Benjamin Franklin:Classical Liberalism:SPW
+George Washington:Federalism:S
+Montesquieu:Classical Liberalism:PW
+Voltaire:Classical Liberalism:PW
+Mary Wollstonecraft:Liberal Feminism:PW
+Gloria Steinem:Liberal Feminism:AW
+Betty Friedan:Liberal Feminism:AW
+Andrea Dworkin:Radical Feminism:AW
+bell hooks:Radical Feminism:AW
+Frantz Fanon:Decolonialism:RPW
+Edward Said:Decolonialism:PW
+Paulo Freire:Decolonialism:PW
+W. E. B. Du Bois:Pan-Africanism:AWP
+Marcus Garvey:Black Nationalism:AW
+Kwame Nkrumah:Pan-Africanism:SR
+Julius Nyerere:African Socialism:S
+Patrice Lumumba:Pan-Africanism:RS
+Gamal Abdel Nasser:Nasserism:SR
+Sayyid Qutb:Islamism:PW
+Ruhollah Khomeini:Khomeinism:RS
+Michel Aflaq:Ba’athism:PW
+Theodor Herzl:Zionism:AW
+David Ben-Gurion:Zionism:S
+Vladimir Jabotinsky:Zionism:AW
+Vinayak Savarkar:Hindutva:AW
+B. R. Ambedkar:Social Democracy:SAEP
+Sun Yat-sen:Civic Republicanism:RS
+Aleksandr Dugin:Eurasianism:PW
+Leo Tolstoy:Christian Anarchism:WPA
+Dorothy Day:Christian Anarchism:AW
+Thomas Aquinas:Integralism:P
+G. K. Chesterton:Distributism:WP
+Hilaire Belloc:Distributism:WE
+E. F. Schumacher:Distributism:E
+Wendell Berry:Agrarianism:WA
+Joseph de Maistre:Reactionism:P
+Julius Evola:Traditionalism:P
+Carl Schmitt:Authoritarianism:P
+Benito Mussolini:Fascism:S
+Adolf Hitler:Nazism:S
+Giovanni Gentile:Fascism:P
+Francisco Franco:Falangism:S
+Charles Maurras:Monarchism:PW
+Klemens von Metternich:Monarchism:S
+Louis XIV:Absolutism:S
+Theodore Roosevelt:Progressivism:S
+Woodrow Wilson:Liberal Internationalism:S
+John F. Kennedy:Liberal Internationalism:S
+Barack Obama:Social Liberalism:SW
+Bill Clinton:Third Way:S
+Tony Blair:Third Way:S
+Dwight Eisenhower:Centrism:S
+Richard Nixon:Realism:S
+Henry Kissinger:Realism:SW
+Bernie Sanders:Democratic Socialism:SAW
+Clement Attlee:Social Democracy:S
+Olof Palme:Social Democracy:S
+Willy Brandt:Social Democracy:S
+Salvador Allende:Democratic Socialism:S
+Hugo Chavez:Chavismo:S
+Pierre Trudeau:Social Liberalism:S
+Konrad Adenauer:Christian Democracy:S
+Ludwig Erhard:Social Market Economy:SE
+Walter Eucken:Ordoliberalism:E
+Wilhelm Ropke:Ordoliberalism:EW
+Ron Paul:Libertarianism:SAW
+Barry Goldwater:Libertarianism:SW
+William F. Buckley Jr.:Fusionism:W
+Russell Kirk:Burkean Conservatism:PW
+Michael Oakeshott:Burkean Conservatism:P
+Roger Scruton:Burkean Conservatism:PW
+Pat Buchanan:Paleoconservatism:SW
+Irving Kristol:Neoconservatism:W
+Benjamin Disraeli:One-Nation Conservatism:SW
+Mikhail Gorbachev:Social Democracy:S
+Rachel Carson:Environmentalism:WA
+Arne Naess:Deep Ecology:P
+Vandana Shiva:Ecofeminism:AW
+Kate Raworth:Degrowth:E
+Herman Daly:Degrowth:E
+Jason Hickel:Degrowth:EW
+Naomi Klein:Eco-Socialism:AW
+John Bellamy Foster:Eco-Socialism:EW
+John Zerzan:Primitivism:PW
+Kirkpatrick Sale:Luddism:W
+Ray Kurzweil:Transhumanism:W
+Nick Bostrom:Transhumanism:P
+Nick Land:Accelerationism:P
+Curtis Yarvin:Neoreaction:W
+Aaron Bastani:Fully Automated Luxury Communism:W
+Julian Assange:Cypherpunk:A
+Aaron Swartz:Pirate Politics:AW
+Henry Hazlitt:Libertarianism:EW
+Thomas Sowell:Conservatism:EW
+Paul Krugman:Social Liberalism:EW
+Joseph Stiglitz:Social Liberalism:E
+Amartya Sen:Social Liberalism:EP
+Mariana Mazzucato:Social Democracy:E
+Stephanie Kelton:Modern Monetary Theory:E
+Ha-Joon Chang:Developmental State:E
+Friedrich List:Economic Nationalism:E
+John Kenneth Galbraith:Social Liberalism:EW
+Thorstein Veblen:Progressivism:EW
+Hyman Minsky:Keynesianism:E
+Oskar Lange:Market Socialism:E
+Robert Owen:Utopian Socialism:EA
+Charles Fourier:Utopian Socialism:PW
+Henri de Saint-Simon:Technocracy:PE
+Thomas More:Utopian Socialism:PW
+Hannah Arendt:Civic Republicanism:PW
+Isaiah Berlin:Social Liberalism:PW
+Karl Popper:Social Liberalism:P
+Jurgen Habermas:Social Democracy:P
+John Dewey:Pragmatism:PA
+Charles Taylor:Communitarianism:P
+Michael Sandel:Communitarianism:PW
+Alasdair MacIntyre:Communitarianism:P
+Martha Nussbaum:Social Liberalism:PW
+Desmond Tutu:Christian Socialism:A
+Oscar Romero:Liberation Theology:A
+Gustavo Gutierrez:Liberation Theology:P
+Thich Nhat Hanh:Pacifism:AW
+Bertrand Russell:Pacifism:PAW
+Albert Einstein:World Federalism:W
+Muhammad Iqbal:Islamic Modernism:PW
+Abul A'la Maududi:Islamism:PW
+Jose Marti:Civic Republicanism:RW
+Emiliano Zapata:Zapatismo:R
+Subcomandante Marcos:Zapatismo:RW
+Abdullah Ocalan:Democratic Confederalism:RPW
+Vinoba Bhave:Gandhism:A
+Rabindranath Tagore:Cosmopolitanism:W
+Sidney Webb:Fabianism:EW
+Beatrice Webb:Fabianism:EW
+H. G. Wells:Fabianism:W
+George Bernard Shaw:Fabianism:W
+C. H. Douglas:Social Credit:E
+Samuel Konkin:Agorism:PW
+Leon Bourgeois:Solidarism:S
+Emmanuel Mounier:Personalism:P
+Jacques Maritain:Personalism:P
+Pope Leo XIII:Catholic Social Teaching:P
+Walter Rauschenbusch:Christian Socialism:AW
+Han Fei:Legalism:P
+Laozi:Taoism:P
+Zhuangzi:Taoism:PW
+Mozi:Mohism:P
+Xunzi:Confucianism:P
+Mencius:Confucianism:P
+Kautilya:Realism:PE
+Ibn Khaldun:Realism:EPW
+Richard Cobden:Classical Liberalism:AE
+Herbert Spencer:Social Darwinism:PW
+William Graham Sumner:Social Darwinism:EW
+Vilfredo Pareto:Oligarchism:E
+Gaetano Mosca:Oligarchism:P
+Robert Michels:Oligarchism:P
+Max Weber:Liberal Conservatism:EPW
+Emile Durkheim:Solidarism:PW
+Auguste Comte:Technocracy:P
+Carl Menger:Classical Liberalism:E
+Eugen von Bohm-Bawerk:Classical Liberalism:E
+Gary Becker:Libertarianism:E
+James Buchanan:Libertarianism:E
+Ronald Coase:Classical Liberalism:E
+Deirdre McCloskey:Libertarianism:EW
+Arthur Laffer:Supply-Side Economics:E
+Dani Rodrik:Social Democracy:E
+Samir Amin:Marxism:E
+Immanuel Wallerstein:Marxism:E
+Andre Gunder Frank:Marxism:E
+Raul Prebisch:Developmental State:E
+Nikolai Chernyshevsky:Utopian Socialism:RW
+Alexander Herzen:Radicalism:RW
+Georgi Plekhanov:Marxism:RP
+Karl Liebknecht:Luxemburgism:RS
+Leszek Kolakowski:Social Democracy:P
+Milovan Djilas:Democratic Socialism:SW
+Imre Nagy:Democratic Socialism:S
+Alexander Dubcek:Democratic Socialism:S
+Lech Walesa:Christian Democracy:AS
+Vaclav Klaus:Classical Liberalism:SE
+Helmut Kohl:Christian Democracy:S
+Francois Mitterrand:Social Democracy:S
+Jean Jaures:Social Democracy:SW
+Leon Blum:Social Democracy:SW
+Jean Monnet:Liberal Internationalism:S
+Robert Schuman:Christian Democracy:S
+Alcide De Gasperi:Christian Democracy:S
+Antonio Salazar:Corporatism:S
+Getulio Vargas:Corporatism:S
+Juan Peron:Peronism:S
+Eva Peron:Peronism:A
+Jose Antonio Primo de Rivera:Falangism:W
+Jose de San Martin:Civic Republicanism:S
+Benito Juarez:Radicalism:S
+Augusto Pinochet:Authoritarianism:S
+Sukarno:Anti-Imperialism:S
+Mohammad Mosaddegh:Anti-Imperialism:S
+Muhammad Ali Jinnah:Civic Nationalism:S
+Zhou Enlai:Marxism-Leninism:S
+Jose Rizal:Civic Nationalism:RW
+Ernesto Laclau:Left Populism:P
+Chantal Mouffe:Left Populism:P
+Nancy Fraser:Neo-Marxism:P
+Silvia Federici:Neo-Marxism:PW
+Frederick Douglass:Radicalism:AWS
+Susan B. Anthony:Liberal Feminism:A
+Elizabeth Cady Stanton:Liberal Feminism:A
+Olympe de Gouges:Liberal Feminism:AW
+Audre Lorde:Radical Feminism:AW
+Huey Newton:Black Radical Tradition:RA
+Cedric Robinson:Black Radical Tradition:P
+C. L. R. James:Black Radical Tradition:RW
+Fred Hampton:Black Radical Tradition:RA
+Stokely Carmichael:Black Nationalism:RA
+John Muir:Environmentalism:AW
+Aldo Leopold:Environmentalism:W
+Barry Commoner:Environmentalism:A
+Donella Meadows:Environmentalism:EW
+Jacques Ellul:Christian Anarchism:P
+Ivan Illich:Green Anarchism:PW
+Colin Ward:Anarcho-Communism:W
+Alexander Berkman:Anarcho-Communism:RW
+Nestor Makhno:Anarcho-Communism:R
+Buenaventura Durruti:Anarcho-Syndicalism:R
+Louise Michel:Anarcho-Communism:RA
+Sylvia Pankhurst:Left Communism:AW
+Daniel De Leon:Syndicalism:RW
+Eugene V. Debs:Democratic Socialism:AS
+Big Bill Haywood:Syndicalism:RA
+Upton Sinclair:Democratic Socialism:W
+Jack London:Democratic Socialism:W
+William Morris:Utopian Socialism:W
+Stafford Beer:Cybernetic Planning:PE
+Walter Lippmann:Liberal Internationalism:W
+Frank Knight:Classical Liberalism:E
+Lionel Robbins:Classical Liberalism:E
+Joan Robinson:Keynesianism:E
+Paul Samuelson:Keynesianism:E
+Michael Walzer:Communitarianism:P
+Philip Pettit:Civic Republicanism:P
+Quentin Skinner:Civic Republicanism:P
+Derek Parfit:Utilitarianism:P
+Will MacAskill:Effective Altruism:PA
+Hilary Putnam:Pragmatism:P
+Richard Rorty:Pragmatism:PW
+Carol Gilligan:Liberal Feminism:P
+Kwame Anthony Appiah:Cosmopolitanism:PW
+Seyla Benhabib:Cosmopolitanism:P
+Ernest Gellner:Civic Nationalism:P
+Benedict Anderson:Civic Nationalism:PW
+Ernest Renan:Civic Nationalism:PW
+Johann Gottfried Herder:Ethnonationalism:P
+Giuseppe Mazzini:Civic Nationalism:RA
+Giuseppe Garibaldi:Civic Nationalism:RS
+Camillo Cavour:Liberal Conservatism:S`.split("\n").map(s=>{let[n,d,c]=s.split(":"),e,id;if(/^\d{10}$/.test(d)){e=[...d].map(Number);e.push(CV[n]!=null?CV[n]:Math.max(0,Math.min(9,4.5+.35*(4.5-e[0])+.2*(e[1]-4.5)+.25*(e[2]-4.5))));e=e.map((x,j)=>(x-4.5)/4.5*100*(j==6?-1:1))}else{id=d;e=B.find(y=>y.n==d).v}id=PI[n]||id;const mc=MC[n]||"";return{n,id,c:[...new Set(mc+c)].join(""),v:e}});
+const CAT={R:"Revolutionary",E:"Economics",A:"Activism",P:"Philosophy",S:"Statesman",W:"Writer"};
+let MID=[];
+function pt(c){return PP.filter(p=>!c||p.c.includes(c)).map(p=>({n:p.n,c:p.c,d:Math.sqrt(p.v.reduce((s,x,k)=>s+(x-MID[k])**2,0))})).sort((a,b)=>a.d-b.d).slice(0,10)}
+function ppl(c){document.getElementById("pp").innerHTML=pt(c).map(x=>`<div class="m"><span>${x.n} <small>${[...x.c].map(k=>CAT[k]).join(", ")}</small></span><span>${Math.max(0,Math.round(100-x.d/4.5))}%</span></div>`).join("");document.querySelectorAll(".chips .tag").forEach(t=>t.classList.toggle("on",t.dataset.c==(c||"")))}
+const VAL=[["Equality","M12 3v18M5 7h14M5 7l-3 7a3 3 0 006 0zM19 7l-3 7a3 3 0 006 0z",[[0,-1],[2,-.3],[1,-.2]]],
+["Liberty","M12 3a9 9 0 109 9M12 3l4 3-4 3",[[1,-1],[0,.2]]],
+["Enterprise","M3 17l6-6 4 4 8-9M15 6h6v6",[[0,1]]],
+["Prosperity","M12 3a7 3 0 100 .1M5 6v6c0 2 3 3 7 3s7-1 7-3V6M5 12v6c0 2 3 3 7 3s7-1 7-3v-6",[[0,.6],[7,.5]]],
+["Order","M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z",[[1,.8],[9,.4],[6,-.3]]],
+["Tradition","M3 20h18M5 20V9M10 20V9M14 20V9M19 20V9M3 9l9-6 9 6",[[2,1],[8,.3]]],
+["Progress","M5 12h14M13 6l6 6-6 6",[[2,-.7],[7,.5]]],
+["Peace","M12 3a9 9 0 100 18 9 9 0 000-18zM12 3v18M12 12l-6 6M12 12l6 6",[[4,-1]]],
+["Strength","M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z",[[4,.8],[3,.3]]],
+["Nature","M5 19c0-9 6-14 15-14 0 9-5 15-14 15M5 19l8-8",[[5,1]]],
+["Industry","M3 20V10l6 4v-4l6 4V6h6v14z",[[5,-.8],[0,.2],[7,.3]]],
+["Faith","M12 3v18M6 9h12",[[8,1]]],
+["Reason","M9 18h6M10 21h4M12 3a6 6 0 00-4 10c1 1 1 3 1 3h6s0-2 1-3a6 6 0 00-4-10z",[[8,-.8],[7,.3]]],
+["Accountability","M4 9l6-6 5 5-6 6zM12 12l8 8M3 21h8",[[9,1]]],
+["Mercy","M12 20s-8-5-8-11a4.5 4.5 0 018-3 4.5 4.5 0 018 3c0 6-8 11-8 11z",[[9,-1]]],
+["Sovereignty","M5 21V4M5 4h13l-3 4 3 4H5",[[3,1]]],
+["Global Unity","M12 3a9 9 0 100 18 9 9 0 000-18zM3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18",[[3,-1],[4,-.2]]],
+["Innovation","M12 3c4 3 5 8 3 13H9c-2-5-1-10 3-13zM9 16l-3 4M15 16l3 4",[[7,1]]],
+["Simplicity","M12 21v-9M12 12c0-4-3-6-7-6 0 4 3 6 7 6zM12 14c0-3 2-5 6-5 0 3-2 5-6 5z",[[7,-1]]],
+["Revolution","M13 2L5 14h6l-1 8 9-13h-6z",[[6,1]]],
+["Stability","M12 6v15M5 13a7 7 0 0014 0M8 10h8M10 4a2 2 0 104 0 2 2 0 00-4 0z",[[6,-1],[1,.2]]],
+["Community","M7 8a3 3 0 106 0 3 3 0 00-6 0zM2 20c0-4 3-6 6-6s6 2 6 6M16 8a3 3 0 010 6M17 14c3 0 5 2 5 6",[[10,1],[2,.3],[3,.2]]],
+["Individualism","M8 7a4 4 0 108 0 4 4 0 00-8 0zM4 21c0-5 4-8 8-8s8 3 8 8",[[10,-1],[1,-.3],[0,.3]]],
+["Honor","M12 3l2.5 6 6.5.5-5 4.5 1.5 6.5-5.5-3.5-5.5 3.5L8 14 3 9.5l6.5-.5z",[[3,.6],[2,.4],[9,.3]]],
+["Security","M6 11h12v9H6zM8 11V7a4 4 0 018 0v4",[[1,.6],[4,.4],[3,.3]]]];
+function vals(){const S=sc(1).map((v,k)=>k==6?-v:v);const R=VAL.map(([n,p,w])=>({n,p,s:w.reduce((a,[k,x])=>a+x*S[k],0)/w.reduce((a,[,x])=>a+Math.abs(x),0)})).sort((a,b)=>b.s-a.s).slice(0,8);st="v";$.innerHTML=`<h1>Your top 8 values</h1><div class="grid">${R.map(r=>`<div class="vc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="${r.p}"/></svg><b>${r.n}</b><small>${Math.max(0,Math.round(r.s))}%</small></div>`).join("")}</div><button class="p" onclick="res()" style="margin-top:16px">Back to results</button>`;scrollTo(0,0);addNav()}
+const tr=(s,c)=>`<div class="tr"><u></u><i style="${s<0?`right:50%;width:${-s/2}%`:`left:50%;width:${s/2}%`};background:${c}"></i></div>`;
+function code(){const c=Q.map((_,k)=>((ans[k]+2)*4+(fo[k]==null?3:fo[k])).toString(36)).join("");return"PM"+Q.length+"-"+c.match(/.{1,10}/g).join("-")}
+function loadCode(t){const e=document.getElementById("cerr"),m=/^pm(\d+)-(.+)$/.exec((t||"").trim().toLowerCase());if(!m||+m[1]!=Q.length){e.textContent="That code doesn't look right. It should start with PM"+Q.length+"-.";return}
+const b=m[2].replace(/[^0-9a-z]/g,"");if(b.length!=Q.length||[...b].some(c=>parseInt(c,36)>19)){e.textContent="That code is the wrong length or has invalid characters.";return}
+ans=[];fo=[];[...b].forEach((c,k)=>{const n=parseInt(c,36);ans[k]=Math.floor(n/4)-2;if(n%4<3)fo[k]=n%4});i=Q.length;res()}
+function copyc(){const t=document.getElementById("cd");t.select();try{navigator.clipboard.writeText(t.value)}catch(e){document.execCommand("copy")}document.getElementById("pst").textContent="Code copied."}
+let DL=null;if(typeof claude!="undefined")claude.use("downloads").then(d=>{DL=d}).catch(()=>{});
+function pdf(){const m=document.getElementById("pst");if(!DL||!window.jspdf){m.textContent="PDF download isn't available in this view. Copy your code instead.";return}
+const S=sc(1),R=mt(S,"v"),d=new window.jspdf.jsPDF({unit:"pt",format:"letter"});let y=56;const L=(t,z=11,b=0)=>{d.setFontSize(z);d.setFont("helvetica",b?"bold":"normal");d.splitTextToSize(t,500).forEach(l=>{if(y>740){d.addPage();y=56}d.text(l,56,y);y+=z+5})};
+L("PoliMatrix results",22,1);y+=6;L("Closest ideology: "+R[0].n+" ("+PC(R[0].d)+"% match)",14,1);L(R[0].ds);y+=6;L("Your code (paste it on the home page to reopen these results):");L(code(),10);y+=8;L("Your axes",14,1);S.forEach((s,a)=>L(A[a][0]+": "+tier(s,A[a])+" ("+Math.round(s)+")"));y+=8;L("Top 10 ideologies",14,1);R.slice(0,10).forEach((r,k)=>L((k+1)+". "+r.n+" - "+PC(r.d)+"%"));y+=8;MID=S;L("Closest people",14,1);pt().forEach(p=>L(p.n+" - "+Math.max(0,Math.round(100-p.d/4.5))+"%"));
+DL.save({filename:"polimatrix-results.pdf",data:d.output("arraybuffer")}).then(()=>{m.textContent="PDF saved."}).catch(e=>{m.textContent=e.code=="declined"?"":"Could not save the PDF."})}
+function res(){st="r";const S=sc(1),R=mt(S,"v");MID=S;const x=I.find(y=>y.n==R[0].n);
+$.innerHTML=`<div class="card"><p>Your closest ideology</p><div style="display:flex;gap:14px;align-items:center">${emb(x,84)}<div class="top">${x.n}</div></div><p>${PC(R[0].d)}% match</p><p>${x.ds}</p></div>
+<div class="row"><button class="p" onclick="top5()">Top 5</button><button class="p" onclick="comp()">Compass</button></div><div class="row"><button class="p" onclick="pdf()">Download PDF</button><button class="p" onclick="copyc()">Copy code</button></div><p id="pst" style="font-size:.85rem"></p>
+<h2>Your code</h2><div class="card"><p>Save this. Paste it on the home page to see these results again.</p><textarea id="cd" readonly onclick="this.select()">${code()}</textarea></div>
+<h2>Your axes</h2><div class="card">${S.map((s,a)=>`<div class="ax"><b><span>${A[a][1]}</span><span>${A[a][0]}: ${Math.round(s)}</span><span>${A[a][2]}</span></b>${tr(s,"var(--ac2)")}</div>`).join("")}</div>
+<h2>Top 10 matches</h2><div class="card">${R.slice(0,10).map(r=>`<div class="m"><span>${r.n}</span><span>${PC(r.d)}%</span></div>`).join("")}</div>
+<h2>Closest people</h2><div class="chips"><span class="tag on" data-c="" onclick="ppl()">All</span>${Object.keys(CAT).map(k=>`<span class="tag" data-c="${k}" onclick="ppl('${k}')">${CAT[k]}</span>`).join("")}</div><div class="card" id="pp"></div>
+<button class="p" onclick="start()">Retake test</button>`;ppl();scrollTo(0,0);addNav()}
+const CP=[[0,1,"Economy and authority"],[2,3,"Culture and nation"],[6,7,"Change and tech"],[10,0,"Collective and market"]];
+function comp(p=0){st="c";const SC=sc(1),SI=SC,[x,y]=CP[p],X=v=>200+v*1.6,Y=v=>200-v*1.6,qc=(a,b)=>a<0?(b>0?"#ef4444":"#22c55e"):(b>0?"#3b82f6":"#eab308"),D=u=>Math.hypot(u.v[x]-SC[x],u.v[y]-SC[y]),cl=[...B].sort((u,w)=>D(u)-D(w)).slice(0,7);
+const H="paint-order:stroke;stroke:#050308;stroke-width:3px;stroke-linejoin:round",q=(t,px,py,al,c)=>`<text x="${px}" y="${py}" text-anchor="${al}" style="fill:${c};font-size:11px;font-weight:bold;opacity:.95">${t}</text>`;
+$.innerHTML=`<h1>Political compass</h1><div class="chips">${CP.map((c,k)=>`<span class="tag${k==p?" on":""}" onclick="comp(${k})">${c[2]}</span>`).join("")}</div><div class="card"><svg viewBox="0 0 400 412" style="width:100%"><rect x="40" y="40" width="160" height="160" fill="#ef4444" opacity=".2"/><rect x="200" y="40" width="160" height="160" fill="#3b82f6" opacity=".2"/><rect x="40" y="200" width="160" height="160" fill="#22c55e" opacity=".2"/><rect x="200" y="200" width="160" height="160" fill="#eab308" opacity=".2"/><path d="M120 40V360M280 40V360M40 120H360M40 280H360" style="stroke:#fff;opacity:.08"/><path d="M200 40V360M40 200H360" style="stroke:#fff;opacity:.5"/><rect x="40" y="40" width="320" height="320" style="fill:none;stroke:var(--ac2)"/>${q(A[x][1]+" · "+A[y][2],46,56,"start","#fca5a5")}${q(A[x][2]+" · "+A[y][2],354,56,"end","#93c5fd")}${q(A[x][1]+" · "+A[y][1],46,354,"start","#86efac")}${q(A[x][2]+" · "+A[y][1],354,354,"end","#fde047")}${B.map(d=>`<circle cx="${X(d.v[x])}" cy="${Y(d.v[y])}" r="3.5" fill="${qc(d.v[x],d.v[y])}" stroke="#050308" stroke-width=".8" opacity=".85"><title>${d.n}</title></circle>`).join("")}${cl.map((d,k)=>`<text x="${X(d.v[x])+6}" y="${Y(d.v[y])+(k%2?12:-6)}" style="fill:#fff;font-size:10px;${H}">${d.n}</text>`).join("")}<line x1="${X(SI[x])}" y1="${Y(SI[y])}" x2="${X(SC[x])}" y2="${Y(SC[y])}" style="stroke:#fff;stroke-width:1.5;stroke-dasharray:4"/><circle cx="${X(SI[x])}" cy="${Y(SI[y])}" r="10" fill="#d8b4fe" stroke="#fff" stroke-width="2.5"/><circle cx="${X(SC[x])}" cy="${Y(SC[y])}" r="10" fill="#8b5cf6" stroke="#fff" stroke-width="2.5"/><text x="${X(SI[x])}" y="${Y(SI[y])-15}" text-anchor="middle" style="fill:#d8b4fe;font-size:12px;font-weight:bold;${H}"></text><text x="${X(SC[x])}" y="${Y(SC[y])+24}" text-anchor="middle" style="fill:#c4b5fd;font-size:12px;font-weight:bold;${H}">You</text>${[[A[x][1],40,"start"],[A[x][2],360,"end"]].map(([t,a,al])=>`<text x="${a}" y="378" text-anchor="${al}" style="fill:var(--fg);font-size:13px">${t}</text>`).join("")}<text x="200" y="30" text-anchor="middle" style="fill:var(--fg);font-size:13px">${A[y][2]}</text><text x="200" y="404" text-anchor="middle" style="fill:var(--fg);font-size:13px">${A[y][1]}</text></svg><p style="font-size:.85rem">The large purple dot is you. Small dots are the ${B.length} ideologies, colored by quadrant; the seven closest to you are named.</p></div><button class="p" onclick="res()">Back to results</button>`;scrollTo(0,0);addNav()}
+
+const PC=d=>Math.max(0,Math.round(100-d/4.8));
+function hs(s){let h=7;for(const c of s)h=(h*31+c.charCodeAt(0))>>>0;return h}
+function emb(x,z){const v=x.v,h=hs(x.n),hue=Math.round(5+(v[0]+100)/200*215),n=3+h%6,sh=v[1]>20?'rect x="4" y="4" width="92" height="92" rx="6"':'circle cx="50" cy="50" r="46"',pts=[];
+for(let k=0;k<n*2;k++){const a=Math.PI*k/n-Math.PI/2+(h%7)*.1,r=k%2?13+Math.max(0,v[3])/12:30;pts.push((50+r*Math.cos(a)).toFixed(1)+","+(50+r*Math.sin(a)).toFixed(1))}
+return `<svg viewBox="0 0 100 100" width="${z}" height="${z}" style="flex:none"><defs><linearGradient id="g${h}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="hsl(${hue} 70% 32%)"/><stop offset="1" stop-color="hsl(${(hue+50)%360} 60% 12%)"/></linearGradient></defs><${sh} fill="url(#g${h})" stroke="hsl(${hue} 80% 70%)" stroke-width="2"/><polygon points="${pts.join(" ")}" fill="hsl(${hue} 90% 80%)" opacity=".92"/><circle cx="50" cy="50" r="${6+Math.abs(v[10])/20}" fill="hsl(${hue} 60% 20%)"/></svg>`}
+const e=encodeURIComponent,T=[["the economy should be planned or collectively owned","markets and private property should run the economy"],["power should be dispersed and individual liberty protected","a strong state and public order should come first"],["social norms should keep evolving and diversity be embraced","traditional customs and institutions deserve protection"],["loyalty should reach beyond borders to humanity at large","the nation's interests and identity come first"],["force should be avoided and peace pursued","military strength and decisive force are legitimate tools"],["growth and industry matter more than ecological limits","ecological limits should constrain the economy"],["society needs radical, rapid transformation","change should come gradually through existing institutions"],["technology should be restrained and simpler living valued","technology and fast innovation should be embraced"],["public life should be secular","religion should shape public life and morals"],["justice should aim at rehabilitation and root causes","crime deserves firm punishment"],["the individual comes before the group","the community and the collective good come before the individual"]];
+const SRC=[[/Marx|Lenin|Stalin|Mao|Trotsk|Hoxha|Tito|Guevar|Castro|Council|Luxemb|Left Comm|Eurocomm|Syndical|Juche|Dengism|Revisionist|Utopian|Autonom|Situation|Chavis|Sankar|Sandin|Participatory|Fully Automated|Cybernetic|Liberation Theology|Eco-Social|Democratic Social|Christian Comm|Bundism|Islamic Social|Black Radical|Anti-Imperial|Decolonial/,"Marxists Internet Archive","marxists.org"],[/Anarch|Mutualism|Egoism|Communalism|Confederalism|Zapatis|Primitiv|Post-Left|Agorism|Voluntary|Left-Libert|Vegan/,"The Anarchist Library","theanarchistlibrary.org"],[/Capitalism|Libertarian|Objectivism|Minarch|Classical Lib|Monetar|Supply|Neoliberal|Thatcher|Reagan|Georg|Ordolib|Paleolib|Social Darwin|Cypherpunk|Voluntary|Technolibert/,"Library of Economics and Liberty","econlib.org"]];
+const sd=n=>SRC.find(r=>r[0].test(n)),gs=(d,q)=>"https://www.google.com/search?q="+e("site:"+d+" "+q),A_=(h,t)=>`<a href="${h}" target="_blank" rel="noopener">${t}</a>`;
+function plink(n,id){if(MX[n])return"https://www.marxists.org/"+MX[n]+"/";const s=sd(id||"");return s?gs(s[2],n):"https://www.britannica.com/search?query="+e(n)}
+function thinkers(x){const f=FD[x.n],l=PP.filter(p=>p.id==x.n&&p.n!=f).map(p=>p.n);return f?[f,...l]:l}
+function rd(x){const s=sd(x.n),t=thinkers(x);return `<p><small>Sources: ${s?A_(gs(s[2],x.n),s[1])+" · ":""}${A_("https://plato.stanford.edu/search/searcher.py?query="+e(x.n),"Stanford Encyclopedia of Philosophy")} · ${A_("https://www.britannica.com/search?query="+e(x.n),"Britannica")}</small></p>${t.length?`<p><small>Key thinkers: ${t.map(n=>A_(plink(n,x.n),n)).join(" · ")}</small></p>`:""}`}
+function idc(x,m){const rel=I.filter(y=>y!=x).map(y=>({n:y.n,d:Math.hypot(...x.v.map((c,j)=>c-y.v[j]))})).sort((a,b)=>a.d-b.d).slice(0,3).map(o=>o.n),f=FD[x.n];
+return `<details class="card id"><summary>${emb(x,44)}<b>${x.n}</b>${m!=null?`<span class="pct">${m}%</span>`:""}</summary><p>${x.ds}</p>${f?`<p><b>Founder or key figure:</b> ${f}</p>`:""}<div>${A.map((a,k)=>`<div class="ax"><b><span>${a[1]}</span><span>${a[0]}</span><span>${a[2]}</span></b>${tr(x.v[k],"var(--ac2)")}</div>`).join("")}</div><p><b>What it holds</b></p><ul>${A.map((a,k)=>Math.abs(x.v[k])>=25?`<li>${Math.abs(x.v[k])<60?"Leans toward the view that":"Firmly holds that"} ${T[k][x.v[k]<0?0:1]}.</li>`:"").join("")}</ul><p><b>Close to:</b> ${rel.join(", ")}</p>${rd(x)}</details>`}
+function brow(q){const t=q.toLowerCase(),dn=ans.filter(v=>v!=null).length==Q.length,S=dn&&sc(1);let r=I.filter(x=>x.n.toLowerCase().includes(t)||x.ds.toLowerCase().includes(t)).map(x=>({x,m:dn?PC(Math.hypot(...x.v.map((c,j)=>c-S[j]))):null}));if(dn)r.sort((a,b)=>b.m-a.m);const p=t?PP.filter(x=>x.n.toLowerCase().includes(t)):[];
+document.getElementById("sl").innerHTML=(p.length?`<h2>Thinkers</h2><div class="card">${p.slice(0,15).map(x=>`<div class="m"><span>${A_(plink(x.n,x.id),x.n)} <small>${[...x.c].map(k=>CAT[k]).join(", ")}</small></span><span><small>${x.id||""}</small></span></div>`).join("")}</div><h2>Ideologies</h2>`:"")+(r.map(o=>idc(o.x,o.m)).join("")||"<p>No match.</p>")}
+function srch(){st="s";const dn=ans.filter(v=>v!=null).length==Q.length;$.innerHTML=`<h1>Ideology library</h1><p>${I.length} ideologies and ${PP.length} thinkers. Tap one to open it.${dn?" Percentages show how close you are to each.":" Take the test to see how close you are to each."}</p><input id="sq" placeholder="Search..." oninput="brow(this.value)"><div id="sl"></div>`;brow("");scrollTo(0,0);addNav()}
+function top5(){st="t";const S=sc(1),R=mt(S,"v").slice(0,5);
+$.innerHTML=`<h1>Your top 5</h1>`+R.map((r,j)=>{const x=I.find(y=>y.n==r.n),V=x.v,ax=A.map((_,a)=>a),sh=ax.filter(a=>Math.abs(S[a])>=30&&S[a]*V[a]>0&&Math.abs(S[a]-V[a])<40).slice(0,3).map(a=>tier(S[a],A[a])),df=ax.sort((a,b)=>Math.abs(S[b]-V[b])-Math.abs(S[a]-V[a]))[0],f=FD[x.n];
+return `<div class="card"><div style="display:flex;gap:14px;align-items:center">${emb(x,84)}<div><small>#${j+1} · ${PC(r.d)}% match</small><div class="top">${x.n}</div></div></div><p>${x.ds}</p>${f?`<p><b>Founder or key figure:</b> ${f}</p>`:""}<p>${sh.length?"You share: "+sh.join(", ")+". ":""}Biggest gap: ${A[df][0]} (you ${tier(S[df],A[df]).toLowerCase()}, ${x.n} ${tier(V[df],A[df]).toLowerCase()}).</p><ul>${A.map((a,k)=>Math.abs(V[k])>=40?`<li>${Math.abs(V[k])<70?"Leans toward the view that":"Firmly holds that"} ${T[k][V[k]<0?0:1]}.</li>`:"").join("")}</ul>${rd(x)}</div>`}).join("");scrollTo(0,0);addNav()}
+function addNav(){const d=ans.filter(v=>v!=null).length==Q.length,T=d?[["r","Results","res()"],["t","Top 5","top5()"],["c","Compass","comp()"],["v","Values","vals()"],["s","Search","srch()"]]:[["h","Home","start()"],["s","Search","srch()"]];$.insertAdjacentHTML("afterbegin",`<nav class="nav">${T.map(([k,l,f])=>`<span class="tag${st==k?" on":""}" onclick="${f}">${l}</span>`).join("")}</nav>`)}
+start();
+</script></body></html>
